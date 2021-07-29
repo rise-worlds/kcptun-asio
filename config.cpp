@@ -14,9 +14,6 @@ DEFINE_int32(mtu, 1350, "set maximum transmission unit for UDP packets");
 DEFINE_int32(scavengettl, 600, "set how long an expired connection can live(in sec), -1 to disable");
 DEFINE_int32(sndwnd, 128, "set send window size(num of packets)");
 DEFINE_int32(rcvwnd, 512, "set receive window size(num of packets)");
-DEFINE_int32(ds, -1, "alias for datashard");
-DEFINE_int32(ps, -1, "alias for parityshard");
-DEFINE_int32(dscp, 0, "set dscp(6bit)");
 DEFINE_int32(nodelay, 1, "");
 DEFINE_int32(resend, 2, "");
 DEFINE_int32(nc, 1, "");
@@ -32,7 +29,6 @@ void print_configs() {
                  "target address: %s\n"
                  "sndwnd: %d rcvwnd: %d\n"
                  "mtu: %d\n"
-                 "dscp: %d\n"
                  "sockbuf: %d\n"
                  "keepalive: %d\n"
                  "conn: %d\n"
@@ -43,13 +39,12 @@ void print_configs() {
          FLAGS_remoteaddr.c_str(),
          FLAGS_targetaddr.c_str(),
          FLAGS_sndwnd, FLAGS_rcvwnd, FLAGS_mtu,
-         FLAGS_dscp, FLAGS_sockbuf,
+         FLAGS_sockbuf,
          FLAGS_keepalive, FLAGS_conn, FLAGS_autoexpire, FLAGS_scavengettl);
     // LOG(INFO) << buffer;
 }
 
-static bool
-check_zero_cstr(const char *cstr)
+static bool check_zero_cstr(const char *cstr)
 {
     if (cstr == NULL || strlen(cstr) == 0) {
         return true;
@@ -57,20 +52,17 @@ check_zero_cstr(const char *cstr)
     return false;
 }
 
-static void
-env_assign_bool(char *src, void *dst)
+static void env_assign_bool(char *src, void *dst)
 {
     *(bool *)dst = true;
 }
 
-static void
-env_assign_int32(char *src, void *dst)
+static void env_assign_int32(char *src, void *dst)
 {
     *(int32_t*)dst = std::atoi(src);
 }
 
-static void
-env_assign_string(char *src, void *dst)
+static void env_assign_string(char *src, void *dst)
 {
     *(std::string *)dst = src;
 }
@@ -95,8 +87,7 @@ static std::unordered_map<std::string, std::tuple<void *, std::function<void (ch
 
 };
 
-static void
-parse_plugin_option(char *plugin_option)
+static void parse_plugin_option(char *plugin_option)
 {
     char *key = strtok(plugin_option, "=");
     if (check_zero_cstr(key)) {
@@ -114,8 +105,7 @@ parse_plugin_option(char *plugin_option)
     caller(value, dst);
 }
 
-static void
-parse_plugin_options(char *plugin_options)
+static void parse_plugin_options(char *plugin_options)
 {
     char *str = NULL;
     std::vector<char *> option_strs;
@@ -132,8 +122,7 @@ parse_plugin_options(char *plugin_options)
 }
 
 // for SIP003
-static void
-parse_config_from_env()
+static void parse_config_from_env()
 {
     const char *remote_host = std::getenv("SS_REMOTE_HOST");
     const char *remote_port = std::getenv("SS_REMOTE_PORT");
@@ -175,11 +164,6 @@ void parse_command_lines(int argc, char **argv) {
             return;
         }
         var = alias;
-    };
-    auto integer_alias_check = [](int &var, int alias) {
-        if (alias >= 0) {
-            var = alias;
-        }
     };
 
     string_alias_check(FLAGS_localaddr, FLAGS_l);

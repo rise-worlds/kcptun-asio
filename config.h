@@ -13,7 +13,6 @@ DECLARE_int32(mtu);
 DECLARE_int32(scavengettl);
 DECLARE_int32(sndwnd);
 DECLARE_int32(rcvwnd);
-DECLARE_int32(dscp);
 DECLARE_int32(nodelay);
 DECLARE_int32(resend);
 DECLARE_int32(nc);

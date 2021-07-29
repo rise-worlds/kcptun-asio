@@ -2,7 +2,7 @@ Name
 ====
 
 kcptun-asio -- A Tunnel Based On KCP with N:M Multiplexing  
-kcptun-asio is based on C++11 and Asio, fully compatible with [kcptun(go)](https://github.com/xtaci/kcptun)  
+kcptun-asio is based on C++11 and Asio, it's not exactly compatible with [kcptun(go)](https://github.com/xtaci/kcptun)  
 
 Synopsis
 ========
@@ -21,8 +21,12 @@ Features
 
 * reliable data transfering based on kcp protocol  
 * multiplexing  
-* forward error correction   
 * lower resource consumption  
+
+removed features from origin [kcptun-asio](https://github.com/ccsexyz/kcptun-asio) 
+* support aes*/xor/xtea/none/cast5/blowfish/twofish/3des/salsa20 encryption 
+* snappy streaming compression and decompression,based on [google/snappy](https://github.com/google/snappy).The data frame format is [frame_format](https://github.com/google/snappy/blob/master/framing_format.txt)  
+* forward error correction  
 
 Build
 =====

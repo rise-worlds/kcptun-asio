@@ -44,7 +44,6 @@ private:
     asio::ip::udp::socket usocket_;
     asio::ip::udp::endpoint ep_;
     asio::ip::tcp::endpoint target_endpoint_;
-    std::unique_ptr<BaseDecEncrypter> dec_or_enc_;
     std::map<asio::ip::udp::endpoint, std::weak_ptr<Server>> servers_;
     Buffers buffers_;
 };

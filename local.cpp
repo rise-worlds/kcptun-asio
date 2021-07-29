@@ -13,33 +13,22 @@ void Local::run() {
     auto self = shared_from_this();
 
     in = [this](char *buf, std::size_t len, Handler handler) {
+        // auto n = nonce_size + crc_size;
+        // buf += n;
+        // len -= n;
         sess_->async_input(buf, len, handler);
-    };
-    auto inb = in;
-    auto dec = getAsyncDecrypter(
-        getDecEncrypter(),
-        [inb](char *buf, std::size_t len, Handler handler) {
-            auto n = nonce_size + crc_size;
-            buf += n;
-            len -= n;
-            inb(buf, len, handler);
-        });
-    in = [this, dec](char *buf, std::size_t len, Handler handler) {
-        dec->async_input(buf, len, handler);
     };
 
     out = [this](char *buf, std::size_t len, Handler handler) {
-        usock_->async_write(buf, len, handler);
-    };
-    auto enc = getAsyncEncrypter(getDecEncrypter(), out);
-    out = [this, enc](char *buf, std::size_t len, Handler handler) {
         char *buffer = buffers_.get();
-        auto n = nonce_size + crc_size;
-        memcpy(buffer + n, buf, len);
-        // info("capacity: %lu size: %lu\n", buffers_.capacity(), buffers_.size());
-        auto crc = crc32c_ieee(0, (byte *)buf, len);
-        encode32u((byte *)(buffer + nonce_size), crc);
-        enc->async_input(buffer, len + n, [handler, buffer, len, this](
+        // auto n = nonce_size + crc_size;
+        // memcpy(buffer + n, buf, len);
+        // // info("capacity: %lu size: %lu\n", buffers_.capacity(), buffers_.size());
+        // auto crc = crc32c_ieee(0, (byte *)buf, len);
+        // encode32u((byte *)(buffer + nonce_size), crc);
+        // usock_->async_input(buffer, len + n, [handler, buffer, len, this](
+        memcpy(buffer, buf, len);
+        usock_->async_write(buffer, len, [handler, buffer, len, this](
                                               std::error_code ec, std::size_t) {
             buffers_.push_back(buffer);
             // info("capacity: %lu size: %lu\n", buffers_.capacity(), buffers_.size());

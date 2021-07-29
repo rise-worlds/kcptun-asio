@@ -1,5 +1,4 @@
 #include "sess.h"
-#include "encrypt.h"
 
 Session::Session(asio::io_service &service, uint32_t convid, OutputHandler o)
     : AsyncInOutputer(o), service_(service), convid_(convid) {

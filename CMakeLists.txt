@@ -19,8 +19,6 @@ set(SOURCE_FILES
         frame.h
         smux.h
         smux.cpp
-        encrypt.h
-        encrypt.cpp
         config.h
         config.cpp
 )

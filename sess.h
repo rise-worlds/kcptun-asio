@@ -2,7 +2,6 @@
 #define KCPTUN_SESS_H
 
 #include "config.h"
-#include "encrypt.h"
 #include "ikcp.h"
 #include "utils.h"
 

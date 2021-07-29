@@ -2,7 +2,6 @@
 #define KCPTUN_KCPTUN_CLIENT_H
 
 #include "config.h"
-#include "encrypt.h"
 #include "local.h"
 #include "smux.h"
 

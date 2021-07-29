@@ -1,4 +1,3 @@
-#include "encrypt.h"
 #include "kcptun_client.h"
 #include "local.h"
 #include "server.h"

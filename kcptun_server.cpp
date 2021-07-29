@@ -10,7 +10,6 @@ kcptun_server::kcptun_server(asio::io_service &io_service,
       usocket_(io_service, local_endpoint) {}
 
 void kcptun_server::run() {
-    dec_or_enc_ = getDecEncrypter();
     do_receive();
 }
 
@@ -31,9 +30,9 @@ void kcptun_server::do_receive() {
                 do_receive();
                 return;
             }
-            dec_or_enc_->decrypt(buf_, len, buf_, len);
-            char *buf = buf_ + (nonce_size + crc_size);
-            len -= nonce_size + crc_size;
+            // char *buf = buf_ + (nonce_size + crc_size);
+            // len -= nonce_size + crc_size;
+            char *buf = buf_;
             auto it = servers_.find(ep_);
             std::shared_ptr<Server> server;
             if (it != servers_.end()) {
@@ -47,14 +46,13 @@ void kcptun_server::do_receive() {
                         service_, [this, self, ep](char *buf, std::size_t len,
                                                    Handler handler) {
                             char *buffer = buffers_.get();
-                            memcpy(buffer + nonce_size + crc_size, buf, len);
-                            auto crc = crc32c_ieee(0, (byte *)buf, len);
-                            encode32u((byte *)(buffer + nonce_size), crc);
-                            dec_or_enc_->encrypt(
-                                    buffer, len + nonce_size + crc_size, buffer,
-                                    len + nonce_size + crc_size);
+                            // memcpy(buffer + nonce_size + crc_size, buf, len);
+                            // auto crc = crc32c_ieee(0, (byte *)buf, len);
+                            // encode32u((byte *)(buffer + nonce_size), crc);
+                            memcpy(buffer, buf, len);
                             usocket_.async_send_to(
-                                    asio::buffer(buffer, len + nonce_size + crc_size),
+                                    // asio::buffer(buffer, len + nonce_size + crc_size),
+                                    asio::buffer(buffer, len),
                                     ep, [handler, this, self, len,
                                             buffer](std::error_code ec, std::size_t) {
                                         buffers_.push_back(buffer);

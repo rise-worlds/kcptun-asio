@@ -3,8 +3,6 @@
 
 #include "utils.h"
 
-std::string pbkdf2(std::string password);
-
 class BaseDecEncrypter {
 public:
     virtual ~BaseDecEncrypter() = default;
@@ -40,8 +38,7 @@ private:
     std::unique_ptr<BaseDecEncrypter> enc_;
 };
 
-std::unique_ptr<BaseDecEncrypter> getDecEncrypter(const std::string &method,
-                                                  const std::string &pwd);
+std::unique_ptr<BaseDecEncrypter> getDecEncrypter();
 
 void put_random_bytes(char *buffer, std::size_t length);
 
@@ -56,7 +53,5 @@ getAsyncDecrypter(std::unique_ptr<BaseDecEncrypter> &&dec,
                   OutputHandler handler) {
     return std::make_shared<AsyncDecrypter>(std::move(dec), handler);
 }
-
-uint32_t crc32c_cast(const unsigned char *buf, size_t len);
 
 #endif // SHADOWSOCKS_ASIO_ENCRYPT_H

@@ -6,9 +6,6 @@
 #include "local.h"
 #include "smux.h"
 
-class snappy_stream_writer;
-class snappy_stream_reader;
-
 class kcptun_client_session final
     : public std::enable_shared_from_this<kcptun_client_session>,
       public kvar_,

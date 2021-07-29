@@ -1,5 +1,4 @@
 #include "kcptun_client.h"
-#include "snappy_stream.h"
 
 kcptun_client::kcptun_client(asio::io_service &io_service,
                              asio::ip::tcp::endpoint local_endpoint,

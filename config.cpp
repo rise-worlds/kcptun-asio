@@ -1,6 +1,4 @@
 #include "config.h"
-#include "rapidjson.h"
-#include "document.h"
 #include "utils.h"
 
 DEFINE_string(localaddr, ":12948", "local listen address");
@@ -9,10 +7,6 @@ DEFINE_string(targetaddr, ":29900", "target server address");
 DEFINE_string(l, "", "alias for localaddr");
 DEFINE_string(r, "", "alias for remoteaddr");
 DEFINE_string(t, "", "alias for targetaddr");
-DEFINE_string(c, "", "config from json file, which will override the command from shell");
-DEFINE_string(key, "it's a secret", "pre-shared secret between client and server");
-DEFINE_string(crypt, "aes", "aes, aes-128, aes-192, salsa20, blowfish, twofish, cast5, 3des, tea, xtea, xor, none");
-DEFINE_string(mode, "fast", "profiles: fast3, fast2, fast, normal");
 DEFINE_string(logfile, "", "specify a log file to output, default goes to stdout");
 
 DEFINE_int32(conn, 1, "set num of UDP connections to server");
@@ -27,30 +21,23 @@ DEFINE_int32(ds, -1, "alias for datashard");
 DEFINE_int32(ps, -1, "alias for parityshard");
 DEFINE_int32(dscp, 0, "set dscp(6bit)");
 DEFINE_int32(nodelay, 1, "");
-DEFINE_int32(resend, 1, "");
-DEFINE_int32(nc, 0, "");
-DEFINE_int32(interval, 40, "");
+DEFINE_int32(resend, 2, "");
+DEFINE_int32(nc, 1, "");
+DEFINE_int32(interval, 10, "");
 DEFINE_int32(sockbuf, 4194304, "socket buffer size");
 DEFINE_int32(keepalive, 10, "keepalive interval in seconds");
 
-DEFINE_bool(nocomp, false, "disable compression");
-DEFINE_bool(acknodelay, true, "flush ack immediately when a packet is received");
 DEFINE_bool(kvar, false, "run default kvar printer");
-
-using namespace rapidjson;
 
 void print_configs() {
     char buffer[1024];
     snprintf(buffer, 1024, "listening on: %s\n"
-                 "encryption: %s\n"
                  "nodelay parameters: %d %d %d %d\n"
                  "remote address: %s\n"
                  "target address: %s\n"
                  "sndwnd: %d rcvwnd: %d\n"
-                 "compression: %s\n"
                  "mtu: %d\n"
                  "datashard: %d parityshard: %d\n"
-                 "acknodelay: %s\n"
                  "dscp: %d\n"
                  "sockbuf: %d\n"
                  "keepalive: %d\n"
@@ -58,12 +45,11 @@ void print_configs() {
                  "autoexpire: %d\n"
                  "scavengettl: %d\n",
          FLAGS_localaddr.c_str(),
-         FLAGS_crypt.c_str(),
          FLAGS_nodelay, FLAGS_interval, FLAGS_resend, FLAGS_nc,
          FLAGS_remoteaddr.c_str(),
          FLAGS_targetaddr.c_str(),
-         FLAGS_sndwnd, FLAGS_rcvwnd, get_bool_str(!FLAGS_nocomp), FLAGS_mtu,
-         FLAGS_datashard, FLAGS_parityshard, get_bool_str(FLAGS_acknodelay), FLAGS_dscp, FLAGS_sockbuf,
+         FLAGS_sndwnd, FLAGS_rcvwnd, FLAGS_mtu,
+         FLAGS_datashard, FLAGS_parityshard, FLAGS_dscp, FLAGS_sockbuf,
          FLAGS_keepalive, FLAGS_conn, FLAGS_autoexpire, FLAGS_scavengettl);
     LOG(INFO) << buffer;
 }
@@ -99,10 +85,7 @@ static std::unordered_map<std::string, std::tuple<void *, std::function<void (ch
     {"localaddr", std::make_tuple(&FLAGS_localaddr, env_assign_bool)},
     {"remoteaddr", std::make_tuple(&FLAGS_remoteaddr, env_assign_string)},
     {"targetaddr", std::make_tuple(&FLAGS_targetaddr, env_assign_string)},
-    {"key", std::make_tuple(&FLAGS_key, env_assign_string)},
-    {"crypt", std::make_tuple(&FLAGS_crypt, env_assign_string)},
     {"logfile", std::make_tuple(&FLAGS_logfile, env_assign_string)},
-    {"mode", std::make_tuple(&FLAGS_mode, env_assign_string)},
 
     {"conn", std::make_tuple(&FLAGS_conn, env_assign_int32)},
     {"autoexpire", std::make_tuple(&FLAGS_autoexpire, env_assign_int32)},
@@ -119,8 +102,6 @@ static std::unordered_map<std::string, std::tuple<void *, std::function<void (ch
     {"sockbuf", std::make_tuple(&FLAGS_sockbuf, env_assign_int32)},
     {"keepalive", std::make_tuple(&FLAGS_keepalive, env_assign_int32)},
 
-    {"nocomp", std::make_tuple(&FLAGS_nocomp, env_assign_bool)},
-    {"acknodelay", std::make_tuple(&FLAGS_acknodelay, env_assign_bool)},
     {"kvar", std::make_tuple(&FLAGS_kvar, env_assign_bool)},
 };
 
@@ -195,7 +176,6 @@ parse_config_from_env()
 void parse_command_lines(int argc, char **argv) {
     google::LogToStderr();
     DeferCaller defer([] {
-        process_configs();
         google::SetLogDestination(0, FLAGS_logfile.c_str());
         print_configs();
     });
@@ -224,97 +204,6 @@ void parse_command_lines(int argc, char **argv) {
     integer_alias_check(FLAGS_datashard, FLAGS_ds);
 
     parse_config_from_env();
-
-    if (FLAGS_c.empty()) {
-        return;
-    }
-
-    std::ifstream ifs(FLAGS_c);
-    std::string jsonstr((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-    if (jsonstr.empty()) {
-        return;
-    }
-
-    Document d;
-    d.Parse(jsonstr.data());
-
-    if (d.IsNull() || !d.IsObject()) {
-        return;
-    }
-
-    std::unordered_map<std::string, std::function<void(bool)>> boolean_handlers;
-    std::unordered_map<std::string, std::function<void(int)>> integer_handlers;
-    std::unordered_map<std::string, std::function<void(const std::string &)>> string_handlers;
-
-    auto get_int_assigner = [&](const std::string &name, int *pi) {
-        integer_handlers.insert(std::make_pair(name, [&, pi](int i) {
-            *pi = i;
-        }));
-    };
-    auto get_bool_assigner = [&](const std::string &name, bool *pb) {
-        boolean_handlers.insert(std::make_pair(name, [&, pb](bool b) {
-            *pb = b;
-        }));
-    };
-    auto get_string_assigner = [&](const std::string &name, std::string *ps) {
-        string_handlers.insert(std::make_pair(name, [&, ps](const std::string &s) {
-            *ps = s;
-        }));
-    };
-
-    get_string_assigner("localaddr", &FLAGS_localaddr);
-    get_string_assigner("remoteaddr", &FLAGS_remoteaddr);
-    get_string_assigner("targetaddr", &FLAGS_targetaddr);
-    get_string_assigner("listen", &FLAGS_localaddr);
-    get_string_assigner("target", &FLAGS_targetaddr);
-    get_string_assigner("key", &FLAGS_key);
-    get_string_assigner("crypt", &FLAGS_crypt);
-    get_string_assigner("mode", &FLAGS_mode);
-    get_string_assigner("logfile", &FLAGS_logfile);
-
-    get_int_assigner("conn", &FLAGS_conn);
-    get_int_assigner("autoexpire", &FLAGS_autoexpire);
-    get_int_assigner("mtu", &FLAGS_mtu);
-    get_int_assigner("scavengettl", &FLAGS_scavengettl);
-    get_int_assigner("sndwnd", &FLAGS_sndwnd);
-    get_int_assigner("rcvwnd", &FLAGS_rcvwnd);
-    get_int_assigner("datashard", &FLAGS_datashard);
-    get_int_assigner("parityshard", &FLAGS_parityshard);
-    get_int_assigner("dscp", &FLAGS_dscp);
-    get_int_assigner("nodelay", &FLAGS_nodelay);
-    get_int_assigner("resend", &FLAGS_resend);
-    get_int_assigner("nc", &FLAGS_nc);
-    get_int_assigner("sockbuf", &FLAGS_sockbuf);
-    get_int_assigner("keepalive", &FLAGS_keepalive);
-    get_int_assigner("interval", &FLAGS_interval);
-
-    get_bool_assigner("kvar", &FLAGS_kvar);
-    get_bool_assigner("nocomp", &FLAGS_nocomp);
-    get_bool_assigner("acknodelay", &FLAGS_acknodelay);
-
-    for (auto &m : d.GetObject()) {
-        if (!m.name.IsString()) {
-            continue;
-        }
-        std::string key = m.name.GetString();
-        auto &value = m.value;
-        if (value.IsBool()) {
-            auto it = boolean_handlers.find(key);
-            if (it != boolean_handlers.end()) {
-                (it->second)(value.GetBool());
-            }
-        } else if (value.IsString()) {
-            auto it = string_handlers.find(key);
-            if (it != string_handlers.end()) {
-                (it->second)(value.GetString());
-            }
-        } else if (value.IsNumber()) {
-            auto it = integer_handlers.find(key);
-            if (it != integer_handlers.end()) {
-                (it->second)(value.GetInt());
-            }
-        }
-    }
 }
 
 std::string get_host(const std::string &addr) {
@@ -335,26 +224,4 @@ std::string get_port(const std::string &addr) {
         std::terminate();
     }
     return addr.substr(pos + 1);
-}
-
-void process_configs() {
-    auto assigner = [](int nodelay, int interval, int resend, int nc) -> std::function<void()> {
-        return [nodelay, interval, resend, nc]() {
-            FLAGS_nodelay = nodelay;
-            FLAGS_interval = interval;
-            FLAGS_resend = resend;
-            FLAGS_nc = nc;
-        };
-    };
-    std::unordered_map<std::string, std::function<void()>> handlers = {
-            {"normal", assigner(0, 40, 2, 1)},
-            {"fast",   assigner(0, 30, 2, 1)},
-            {"fast2",  assigner(1, 20, 2, 1)},
-            {"fast3",  assigner(1, 10, 2, 1)},
-    };
-    auto it = handlers.find(FLAGS_mode);
-    if (it == handlers.end()) {
-        return;
-    }
-    (it->second)();
 }

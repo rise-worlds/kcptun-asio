@@ -12,7 +12,7 @@ kcptun_server::kcptun_server(asio::io_service &io_service,
 
 void kcptun_server::run() {
     isfec_ = FLAGS_datashard > 0 && FLAGS_parityshard > 0;
-    dec_or_enc_ = getDecEncrypter(FLAGS_crypt, pbkdf2(FLAGS_key));
+    dec_or_enc_ = getDecEncrypter();
     do_receive();
 }
 

@@ -5,11 +5,6 @@ if [ $# -gt 0  ]; then
 fi
 git submodule update --init --recursive
 
-cd cryptopp
-make clean
-make libcryptopp.a "-j$N"
-cd ..
-
 rm CMakeCache.txt 
 cmake .
 make clean 

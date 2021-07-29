@@ -2,7 +2,6 @@
 #include "async_fec.h"
 #include "sess.h"
 #include "smux.h"
-#include "snappy_stream.h"
 
 static kvar local_kvar("Local");
 
@@ -28,7 +27,7 @@ void Local::run() {
     }
     auto inb = in;
     auto dec = getAsyncDecrypter(
-        getDecEncrypter(FLAGS_crypt, pbkdf2(FLAGS_key)),
+        getDecEncrypter(),
         [inb](char *buf, std::size_t len, Handler handler) {
             auto n = nonce_size + crc_size;
             buf += n;
@@ -42,7 +41,7 @@ void Local::run() {
     out = [this](char *buf, std::size_t len, Handler handler) {
         usock_->async_write(buf, len, handler);
     };
-    auto enc = getAsyncEncrypter(getDecEncrypter(FLAGS_crypt, pbkdf2(FLAGS_key)), out);
+    auto enc = getAsyncEncrypter(getDecEncrypter(), out);
     out = [this, enc](char *buf, std::size_t len, Handler handler) {
         char *buffer = buffers_.get();
         auto n = nonce_size + crc_size;
@@ -71,14 +70,6 @@ void Local::run() {
     out2 = [this](char *buf, std::size_t len, Handler handler) {
         sess_->async_write(buf, len, handler);
     };
-    if (!FLAGS_nocomp) {
-        auto snappy_writer =
-            std::make_shared<snappy_stream_writer>(service_, out2);
-        out2 = [this, snappy_writer](char *buf, std::size_t len,
-                                     Handler handler) {
-            snappy_writer->async_input(buf, len, handler);
-        };
-    }
     smux_ = std::make_shared<smux>(service_, out2);
     smux_->call_on_destroy([self, this]{
         destroy();
@@ -88,14 +79,6 @@ void Local::run() {
     in2 = [this](char *buf, std::size_t len, Handler handler) {
         smux_->async_input(buf, len, handler);
     };
-    if (!FLAGS_nocomp) {
-        auto snappy_reader =
-            std::make_shared<snappy_stream_reader>(service_, in2);
-        in2 = [this, snappy_reader](char *buf, std::size_t len,
-                                    Handler handler) {
-            snappy_reader->async_input(buf, len, handler);
-        };
-    }
 
     do_usocket_receive();
     do_sess_receive();

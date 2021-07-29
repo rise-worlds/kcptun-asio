@@ -24,21 +24,7 @@ set(SOURCE_FILES
         encrypt.cpp
         config.h
         config.cpp
-        fec.cpp
-	fec.h
-	galois.cpp
-	galois.h
-	galois_noasm.cpp
-	galois_noasm.h
-	galois_table.c
-	inversion_tree.cpp
-	inversion_tree.h
-	matrix.cpp
-	matrix.h
-	reedsolomon.cpp
-	reedsolomon.h
-        async_fec.cpp
-        async_fec.h)
+)
 
 set(KCPTUN_CLIENT_SOURCE_FILES ${SOURCE_FILES} 
         kcptun_client_main.cpp
@@ -53,6 +39,8 @@ set(KCPTUN_SERVER_SOURCE_FILES ${SOURCE_FILES}
         kcptun_server.cpp
         server.cpp
         server.h)
+
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/)
 
 add_executable(kcptun_client ${KCPTUN_CLIENT_SOURCE_FILES})
 target_link_libraries(kcptun_client gflags)

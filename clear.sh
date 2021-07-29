@@ -11,7 +11,3 @@ cd ..
 cd kcp
 git checkout . && git clean -xdf
 cd ..
-
-make clean  
-rm CMakeCache.txt
-rm *.cmake

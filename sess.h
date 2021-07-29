@@ -4,10 +4,7 @@
 #include "config.h"
 #include "encrypt.h"
 #include "ikcp.h"
-#include "matrix.h"
 #include "utils.h"
-
-class FEC;
 
 class Session : public std::enable_shared_from_this<Session>,
                 public AsyncReadWriter,

@@ -40,7 +40,6 @@ private:
     void accept_handler(std::shared_ptr<smux_sess> sess);
 
 private:
-    bool isfec_;
     char buf_[2048];
     asio::io_service &service_;
     asio::ip::udp::socket usocket_;

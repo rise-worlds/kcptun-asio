@@ -1,6 +1,5 @@
 #include "sess.h"
 #include "encrypt.h"
-#include "fec.h"
 
 static kvar sess_kvar("Session");
 

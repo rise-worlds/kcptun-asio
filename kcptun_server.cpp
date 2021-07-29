@@ -1,5 +1,4 @@
 #include "kcptun_server.h"
-#include "fec.h"
 #include "server.h"
 #include "sess.h"
 #include "smux.h"
@@ -11,7 +10,6 @@ kcptun_server::kcptun_server(asio::io_service &io_service,
       usocket_(io_service, local_endpoint) {}
 
 void kcptun_server::run() {
-    isfec_ = FLAGS_datashard > 0 && FLAGS_parityshard > 0;
     dec_or_enc_ = getDecEncrypter();
     do_receive();
 }
@@ -43,17 +41,7 @@ void kcptun_server::do_receive() {
             }
             if (!server) {
                 uint32_t convid;
-                if (isfec_) {
-                    uint16_t fec_type;
-                    decode16u((byte *)(buf + 4), &fec_type);
-                    if (fec_type != typeData) {
-                        do_receive();
-                        return;
-                    }
-                    decode32u((byte *)(buf + fecHeaderSizePlus2), &convid);
-                } else {
-                    decode32u((byte *)buf, &convid);
-                }
+                decode32u((byte *)buf, &convid);
                 asio::ip::udp::endpoint ep = ep_;
                 server = std::make_shared<Server>(
                         service_, [this, self, ep](char *buf, std::size_t len,

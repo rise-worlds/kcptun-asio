@@ -1,5 +1,4 @@
 #include "server.h"
-#include "async_fec.h"
 #include "sess.h"
 #include "smux.h"
 
@@ -11,27 +10,14 @@ Server::Server(asio::io_service &io_service, OutputHandler handler)
 
 void Server::run(AcceptHandler accept_handler, uint32_t convid) {
     auto self = shared_from_this();
-    auto fec = FLAGS_datashard > 0 && FLAGS_parityshard > 0;
 
     in = [this](char *buf, std::size_t len, Handler handler) {
         sess_->async_input(buf, len, handler);
     };
-    if (fec) {
-        auto fec_in = std::make_shared<AsyncFECInputer>(in);
-        in = [this, fec_in](char *buf, std::size_t len, Handler handler) {
-            fec_in->async_input(buf, len, handler);
-        };
-    }
 
     out = [this](char *buf, std::size_t len, Handler handler) {
         output(buf, len, handler);
     };
-    if (fec) {
-        auto fec_out = std::make_shared<AsyncFECOutputer>(out);
-        out = [this, fec_out](char *buf, std::size_t len, Handler handler) {
-            fec_out->async_input(buf, len, handler);
-        };
-    }
     sess_ = std::make_shared<Session>(service_, convid, out);
     sess_->run();
 

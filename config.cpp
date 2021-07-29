@@ -15,8 +15,6 @@ DEFINE_int32(mtu, 1350, "set maximum transmission unit for UDP packets");
 DEFINE_int32(scavengettl, 600, "set how long an expired connection can live(in sec), -1 to disable");
 DEFINE_int32(sndwnd, 128, "set send window size(num of packets)");
 DEFINE_int32(rcvwnd, 512, "set receive window size(num of packets)");
-DEFINE_int32(datashard, 10, "set reed-solomon erasure coding - datashard");
-DEFINE_int32(parityshard, 3, "set reed-solomon erasure coding - parityshard");
 DEFINE_int32(ds, -1, "alias for datashard");
 DEFINE_int32(ps, -1, "alias for parityshard");
 DEFINE_int32(dscp, 0, "set dscp(6bit)");
@@ -37,7 +35,6 @@ void print_configs() {
                  "target address: %s\n"
                  "sndwnd: %d rcvwnd: %d\n"
                  "mtu: %d\n"
-                 "datashard: %d parityshard: %d\n"
                  "dscp: %d\n"
                  "sockbuf: %d\n"
                  "keepalive: %d\n"
@@ -49,7 +46,7 @@ void print_configs() {
          FLAGS_remoteaddr.c_str(),
          FLAGS_targetaddr.c_str(),
          FLAGS_sndwnd, FLAGS_rcvwnd, FLAGS_mtu,
-         FLAGS_datashard, FLAGS_parityshard, FLAGS_dscp, FLAGS_sockbuf,
+         FLAGS_dscp, FLAGS_sockbuf,
          FLAGS_keepalive, FLAGS_conn, FLAGS_autoexpire, FLAGS_scavengettl);
     LOG(INFO) << buffer;
 }
@@ -93,8 +90,6 @@ static std::unordered_map<std::string, std::tuple<void *, std::function<void (ch
     {"sndwnd", std::make_tuple(&FLAGS_sndwnd, env_assign_int32)},
     {"rcvwnd", std::make_tuple(&FLAGS_rcvwnd, env_assign_int32)},
     {"scavengettl", std::make_tuple(&FLAGS_scavengettl, env_assign_int32)},
-    {"datashard", std::make_tuple(&FLAGS_datashard, env_assign_int32)},
-    {"parityshard", std::make_tuple(&FLAGS_parityshard, env_assign_int32)},
     {"nodelay", std::make_tuple(&FLAGS_nodelay, env_assign_int32)},
     {"resend", std::make_tuple(&FLAGS_resend, env_assign_int32)},
     {"nc", std::make_tuple(&FLAGS_nc, env_assign_int32)},
@@ -199,9 +194,6 @@ void parse_command_lines(int argc, char **argv) {
     string_alias_check(FLAGS_localaddr, FLAGS_l);
     string_alias_check(FLAGS_remoteaddr, FLAGS_r);
     string_alias_check(FLAGS_targetaddr, FLAGS_t);
-
-    integer_alias_check(FLAGS_parityshard, FLAGS_ps);
-    integer_alias_check(FLAGS_datashard, FLAGS_ds);
 
     parse_config_from_env();
 }

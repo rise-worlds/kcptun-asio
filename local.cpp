@@ -1,5 +1,4 @@
 #include "local.h"
-#include "async_fec.h"
 #include "sess.h"
 #include "smux.h"
 
@@ -14,17 +13,10 @@ Local::Local(asio::io_service &io_service, asio::ip::udp::endpoint ep)
 
 void Local::run() {
     auto self = shared_from_this();
-    auto fec = FLAGS_datashard > 0 && FLAGS_parityshard > 0;
 
     in = [this](char *buf, std::size_t len, Handler handler) {
         sess_->async_input(buf, len, handler);
     };
-    if (fec) {
-        auto fec_in = std::make_shared<AsyncFECInputer>(in);
-        in = [this, fec_in](char *buf, std::size_t len, Handler handler) {
-            fec_in->async_input(buf, len, handler);
-        };
-    }
     auto inb = in;
     auto dec = getAsyncDecrypter(
         getDecEncrypter(),
@@ -58,12 +50,6 @@ void Local::run() {
             }
         });
     };
-    if (fec) {
-        auto fec_out = std::make_shared<AsyncFECOutputer>(out);
-        out = [this, fec_out](char *buf, std::size_t len, Handler handler) {
-            fec_out->async_input(buf, len, handler);
-        };
-    }
     sess_ = std::make_shared<Session>(service_, uint32_t(rand()), out);
     sess_->run();
 

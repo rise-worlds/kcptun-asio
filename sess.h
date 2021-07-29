@@ -9,7 +9,6 @@
 class Session : public std::enable_shared_from_this<Session>,
                 public AsyncReadWriter,
                 public AsyncInOutputer,
-                public kvar_,
                 public Destroy {
 public:
     Session(asio::io_service &service, uint32_t convid, OutputHandler o);

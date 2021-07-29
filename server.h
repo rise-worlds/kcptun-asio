@@ -11,7 +11,6 @@ using AcceptHandler = std::function<void(std::shared_ptr<smux_sess>)>;
 
 class Server final : public std::enable_shared_from_this<Server>,
                      public AsyncInOutputer,
-                     public kvar_,
                      public Destroy {
 public:
     Server(asio::io_service &io_service, OutputHandler handler);

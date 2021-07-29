@@ -235,12 +235,9 @@ void smux::async_write(char *buf, std::size_t len, Handler handler) {
     try_output(buf, len, handler);
 }
 
-static kvar smux_sess_kvar("smux_sess");
-
 smux_sess::smux_sess(asio::io_service &io_service, uint32_t id, uint8_t version,
                      std::weak_ptr<smux> sm)
-    : service_(io_service), id_(id), version_(version), sm_(sm), kvar_(smux_sess_kvar) {
-        LOG(INFO) << "smux session created!";
+    : service_(io_service), id_(id), version_(version), sm_(sm){
     }
 
 void smux_sess::input(char *buf, std::size_t len, Handler handler) {
@@ -358,7 +355,7 @@ smux_sess::~smux_sess() {
     if (s) {
         s->async_write_frame(frame{version_, cmdFin, 0, id_}, nullptr);
     }
-    LOG(INFO) << "smux session destroyed!";
+    // LOG(INFO) << "smux session destroyed!";
 }
 
 void smux_sess::call_this_on_destroy() {

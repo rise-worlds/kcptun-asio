@@ -2,10 +2,8 @@
 #include "sess.h"
 #include "smux.h"
 
-static kvar server_kvar("Server");
-
 Server::Server(asio::io_service &io_service, OutputHandler handler)
-    : AsyncInOutputer(handler), service_(io_service), kvar_(server_kvar) {
+    : AsyncInOutputer(handler), service_(io_service) {
 }
 
 void Server::run(AcceptHandler accept_handler, uint32_t convid) {

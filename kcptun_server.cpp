@@ -76,13 +76,11 @@ void kcptun_server::do_receive() {
         });
 }
 
-static kvar server_session_kvar("kcptun_server_session");
-
 kcptun_server_session::kcptun_server_session(
     asio::io_service &io_service, std::shared_ptr<smux_sess> sess,
     asio::ip::tcp::endpoint target_endpoint)
     : service_(io_service), sess_(sess), socket_(io_service),
-      target_endpoint_(target_endpoint), kvar_(server_session_kvar) {}
+      target_endpoint_(target_endpoint) {}
 
 void kcptun_server_session::run() {
     auto self = shared_from_this();

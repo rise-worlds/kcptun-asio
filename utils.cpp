@@ -32,57 +32,6 @@ char *Buffers::get() {
     return buf;
 }
 
-static std::unique_ptr<std::unordered_map<std::string, int *>> kvars;
-static std::unique_ptr<std::unordered_map<std::string, int>> kvarsRef;
-
-kvar::kvar(const std::string &name) {
-    if (!kvars) {
-        kvars = my_make_unique<std::unordered_map<std::string, int *>>();
-    }
-    if (!kvarsRef) {
-        kvarsRef = my_make_unique<std::unordered_map<std::string, int>>();
-    }
-    auto it = kvars->find(name);
-    if (it == kvars->end()) {
-        p = new int(0);
-        kvars->insert(std::make_pair(name, p));
-        kvarsRef->insert(std::make_pair(name, 1));
-    } else {
-        p = (*kvars)[name];
-        (*kvarsRef)[name]++;
-    }
-    name_ = name;
-}
-
-kvar::~kvar() {}
-
-void printKvars() {
-    if (!kvars) {
-        return;
-    }
-    std::stringstream log_stream;
-    for (auto &kvar : *kvars) {
-        auto name = kvar.first;
-        if (kvar.second == nullptr) {
-            continue;
-        }
-        auto value = *(kvar.second);
-        log_stream << name << ":" << value << "\t";
-    }
-    LOG(INFO) << log_stream.str();
-}
-
-void run_kvar_printer(asio::io_service &service) {
-    auto timer = std::make_shared<asio::high_resolution_timer>(service, std::chrono::seconds(1));
-    timer->async_wait([&service, timer](const std::error_code &ec) {
-        if (ec) {
-            return;
-        }
-        printKvars();
-        run_kvar_printer(service);
-    });
-}
-
 static Buffers buffersCache(4096);
 
 buffer::buffer() {

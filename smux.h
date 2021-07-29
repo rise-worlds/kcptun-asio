@@ -8,7 +8,6 @@ class smux;
 
 class smux_sess final : public std::enable_shared_from_this<smux_sess>,
                         public AsyncReadWriter,
-                        public kvar_,
                         public Destroy {
 public:
     smux_sess(asio::io_service &io_service, uint32_t id, uint8_t version,

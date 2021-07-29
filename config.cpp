@@ -7,7 +7,6 @@ DEFINE_string(targetaddr, ":29900", "target server address");
 DEFINE_string(l, "", "alias for localaddr");
 DEFINE_string(r, "", "alias for remoteaddr");
 DEFINE_string(t, "", "alias for targetaddr");
-DEFINE_string(logfile, "", "specify a log file to output, default goes to stdout");
 
 DEFINE_int32(conn, 1, "set num of UDP connections to server");
 DEFINE_int32(autoexpire, 0, "set auto expiration time(in seconds) for a single UDP connection, 0 to disable");
@@ -24,8 +23,6 @@ DEFINE_int32(nc, 1, "");
 DEFINE_int32(interval, 10, "");
 DEFINE_int32(sockbuf, 4194304, "socket buffer size");
 DEFINE_int32(keepalive, 10, "keepalive interval in seconds");
-
-DEFINE_bool(kvar, false, "run default kvar printer");
 
 void print_configs() {
     char buffer[1024];
@@ -48,7 +45,7 @@ void print_configs() {
          FLAGS_sndwnd, FLAGS_rcvwnd, FLAGS_mtu,
          FLAGS_dscp, FLAGS_sockbuf,
          FLAGS_keepalive, FLAGS_conn, FLAGS_autoexpire, FLAGS_scavengettl);
-    LOG(INFO) << buffer;
+    // LOG(INFO) << buffer;
 }
 
 static bool
@@ -69,7 +66,7 @@ env_assign_bool(char *src, void *dst)
 static void
 env_assign_int32(char *src, void *dst)
 {
-    *(google::int32*)dst = std::atoi(src);
+    *(int32_t*)dst = std::atoi(src);
 }
 
 static void
@@ -82,7 +79,6 @@ static std::unordered_map<std::string, std::tuple<void *, std::function<void (ch
     {"localaddr", std::make_tuple(&FLAGS_localaddr, env_assign_bool)},
     {"remoteaddr", std::make_tuple(&FLAGS_remoteaddr, env_assign_string)},
     {"targetaddr", std::make_tuple(&FLAGS_targetaddr, env_assign_string)},
-    {"logfile", std::make_tuple(&FLAGS_logfile, env_assign_string)},
 
     {"conn", std::make_tuple(&FLAGS_conn, env_assign_int32)},
     {"autoexpire", std::make_tuple(&FLAGS_autoexpire, env_assign_int32)},
@@ -97,7 +93,6 @@ static std::unordered_map<std::string, std::tuple<void *, std::function<void (ch
     {"sockbuf", std::make_tuple(&FLAGS_sockbuf, env_assign_int32)},
     {"keepalive", std::make_tuple(&FLAGS_keepalive, env_assign_int32)},
 
-    {"kvar", std::make_tuple(&FLAGS_kvar, env_assign_bool)},
 };
 
 static void
@@ -169,15 +164,11 @@ parse_config_from_env()
 }
 
 void parse_command_lines(int argc, char **argv) {
-    google::LogToStderr();
     DeferCaller defer([] {
-        google::SetLogDestination(0, FLAGS_logfile.c_str());
         print_configs();
     });
 
     gflags::ParseCommandLineFlags(&argc, &argv, true);
-    FLAGS_colorlogtostderr = true;
-    google::InitGoogleLogging(argv[0]);
 
     auto string_alias_check = [](std::string &var, const std::string &alias) {
         if (alias.empty()) {

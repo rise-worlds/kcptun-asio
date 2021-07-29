@@ -21,11 +21,8 @@ int main(int argc, char **argv) {
     }
     std::make_shared<kcptun_client>(io_service, local_endpoint, remote_endpoint)
         ->run();
-    if (FLAGS_kvar) {
-        run_kvar_printer(io_service);
-    }
+
     io_service.run();
     gflags::ShutDownCommandLineFlags();
-    google::ShutdownGoogleLogging();
     return 0;
 }

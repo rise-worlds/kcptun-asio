@@ -31,7 +31,6 @@
 #include <map>
 #include <array>
 #include "gflags/gflags.h"
-#include "glog/logging.h"
 #include "zlib.h"
 #include "encoding.h"
 
@@ -284,43 +283,6 @@ private:
     std::unordered_set<char *> bufs_;
     std::unordered_set<char *> all_bufs_;
 };
-
-class kvar final {
-public:
-    explicit kvar(const std::string &name);
-    ~kvar();
-
-    void add(int i) {
-        (*p) += i;
-    }
-    void sub(int i) {
-        (*p) -= i;
-    }
-    int get() {
-        return *p;
-    }
-
-private:
-    int *p;
-    std::string name_;
-};
-
-class kvar_ : public clean_ {
-public:
-    explicit kvar_(kvar &kv) : v_(kv) {
-        v_.add(1);
-    }
-    ~kvar_() {
-        v_.sub(1);
-    }
-
-private:
-    kvar &v_;
-};
-
-void printKvars();
-
-void run_kvar_printer(asio::io_service &service);
 
 struct buffer final {
 public:

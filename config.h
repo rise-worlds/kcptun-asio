@@ -6,7 +6,6 @@
 DECLARE_string(localaddr);
 DECLARE_string(remoteaddr);
 DECLARE_string(targetaddr);
-DECLARE_string(logfile);
 
 DECLARE_int32(conn);
 DECLARE_int32(autoexpire);
@@ -21,8 +20,6 @@ DECLARE_int32(nc);
 DECLARE_int32(sockbuf);
 DECLARE_int32(keepalive);
 DECLARE_int32(interval);
-
-DECLARE_bool(kvar);
 
 void parse_command_lines(int argc, char **argv);
 

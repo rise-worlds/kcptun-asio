@@ -8,7 +8,6 @@ include_directories("${CMAKE_SOURCE_DIR}/asio/asio/include")
 include_directories("${CMAKE_SOURCE_DIR}/gflags/include")
 include_directories("${CMAKE_SOURCE_DIR}/kcp")
 
-add_subdirectory("glog")
 add_subdirectory("gflags")
 add_subdirectory("kcp")
 
@@ -44,7 +43,6 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/)
 
 add_executable(kcptun_client ${KCPTUN_CLIENT_SOURCE_FILES})
 target_link_libraries(kcptun_client gflags)
-target_link_libraries(kcptun_client glog)
 target_link_libraries(kcptun_client kcp)
 target_link_libraries(kcptun_client z)
 if(UNIX)
@@ -54,7 +52,6 @@ endif()
 
 add_executable(kcptun_server ${KCPTUN_SERVER_SOURCE_FILES})
 target_link_libraries(kcptun_server gflags)
-target_link_libraries(kcptun_server glog)
 target_link_libraries(kcptun_server kcp)
 target_link_libraries(kcptun_server z)
 if(UNIX)

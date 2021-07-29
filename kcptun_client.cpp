@@ -58,20 +58,18 @@ void kcptun_client::do_accept() {
     });
 }
 
-static kvar kcptun_client_session_kvar("kcptun_client_session");
-
 kcptun_client_session::kcptun_client_session(
     asio::io_service &io_service, std::shared_ptr<asio::ip::tcp::socket> sock,
     std::shared_ptr<smux_sess> sess)
-    : service_(io_service), sock_(sock), sess_(sess), kvar_(kcptun_client_session_kvar) {
+    : service_(io_service), sock_(sock), sess_(sess) {
 }
 
 kcptun_client_session::~kcptun_client_session() {
-    LOG(INFO) << "stream closed!";
+    // LOG(INFO) << "stream closed!";
 }
 
 void kcptun_client_session::run() {
-    LOG(INFO) << "stream opened!";
+    // LOG(INFO) << "stream opened!";
     do_pipe1();
     do_pipe2();
 }

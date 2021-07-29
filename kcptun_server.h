@@ -6,7 +6,6 @@
 
 class kcptun_server_session final
     : public std::enable_shared_from_this<kcptun_server_session>,
-      public kvar_,
       public Destroy {
 public:
     kcptun_server_session(asio::io_service &io_service,

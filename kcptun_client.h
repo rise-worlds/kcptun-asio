@@ -8,7 +8,6 @@
 
 class kcptun_client_session final
     : public std::enable_shared_from_this<kcptun_client_session>,
-      public kvar_,
       public Destroy {
 public:
     kcptun_client_session(asio::io_service &io_service,

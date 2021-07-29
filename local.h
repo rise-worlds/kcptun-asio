@@ -9,7 +9,6 @@ class smux;
 
 class Local final :
         public std::enable_shared_from_this<Local>,
-        public kvar_,
         public Destroy {
 public:
     Local(asio::io_service &io_service, asio::ip::udp::endpoint ep);

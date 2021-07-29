@@ -40,3 +40,6 @@ kcptun
 kcptun_client
 kcptun_server
 tags
+CPackConfig.cmake
+CPackSourceConfig.cmake
+build

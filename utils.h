@@ -203,14 +203,14 @@ public:
 class AsyncInOutputer {
 public:
     AsyncInOutputer() = default;
-    AsyncInOutputer(OutputHandler o) : o_(o) {}
+    AsyncInOutputer(OutputHandler o) : o_(std::move(o)) {}
     virtual ~AsyncInOutputer() = default;
     void set_output_handler(OutputHandler o) { o_ = o; }
     virtual void async_input(char *buf, std::size_t len, Handler handler) = 0;
 
 protected:
     void output(char *buf, std::size_t len, Handler handler) {
-        o_(buf, len, handler);
+        o_(buf, len, std::move(handler));
     }
 
 private:
@@ -221,7 +221,7 @@ class UsocketReadWriter : public AsyncReadWriter {
 public:
     UsocketReadWriter(asio::ip::udp::socket &&usocket,
                       asio::ip::udp::endpoint ep)
-        : usocket_(std::move(usocket)), ep_(ep) {}
+        : usocket_(std::move(usocket)), ep_(std::move(ep)) {}
     UsocketReadWriter(asio::ip::udp::socket &&usocket)
         : usocket_(std::move(usocket)), connected_(true) {}
     void async_read_some(char *buf, std::size_t len, Handler handler) override {

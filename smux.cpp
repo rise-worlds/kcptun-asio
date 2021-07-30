@@ -1,4 +1,6 @@
 #include "smux.h"
+
+#include <utility>
 #include "config.h"
 
 void smux::run() {
@@ -106,7 +108,7 @@ void smux::async_input(char *buf, std::size_t len, Handler handler) {
     return;
 }
 
-void smux::async_read_full(char *buf, std::size_t len, Handler handler) {
+void smux::async_read_full(char *buf, std::size_t len, const Handler& handler) {
     read_task_.reset();
     if (is_destroyed()) {
         if (handler) {
@@ -237,10 +239,10 @@ void smux::async_write(char *buf, std::size_t len, Handler handler) {
 
 smux_sess::smux_sess(asio::io_service &io_service, uint32_t id, uint8_t version,
                      std::weak_ptr<smux> sm)
-    : service_(io_service), id_(id), version_(version), sm_(sm){
+    : service_(io_service), id_(id), version_(version), sm_(std::move(sm)){
     }
 
-void smux_sess::input(char *buf, std::size_t len, Handler handler) {
+void smux_sess::input(char *buf, std::size_t len, const Handler& handler) {
     if (destroy_) {
         if (handler) {
             handler(std::error_code(1, std::generic_category()), 0);
@@ -376,7 +378,7 @@ void smux_sess::call_this_on_destroy() {
     }
 }
 
-void smux::async_write_frame(frame f, Handler handler) {
+void smux::async_write_frame(frame f, const Handler& handler) {
     TRACE
     if (is_destroyed()) {
         TRACE
@@ -400,7 +402,7 @@ void smux::async_write_frame(frame f, Handler handler) {
 }
 
 void smux::async_connect(
-    std::function<void(std::shared_ptr<smux_sess>)> connectHandler) {
+    const std::function<void(std::shared_ptr<smux_sess>)>& connectHandler) {
     TRACE
     auto self = shared_from_this();
     if (is_destroyed()) {
@@ -430,7 +432,7 @@ void smux::async_connect(
 }
 
 void smux::try_output(char *buf, std::size_t len, Handler handler) {
-    tasks_.push_back(Task{buf, len, handler});
+    tasks_.emplace_back(buf, len, std::move(handler));
     if (!writing_) {
         writing_ = true;
         try_write_task();

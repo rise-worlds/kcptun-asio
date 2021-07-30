@@ -1,6 +1,8 @@
 #ifndef KCPTUN_SMUX_H
 #define KCPTUN_SMUX_H
 
+#include <utility>
+
 #include "frame.h"
 #include "utils.h"
 
@@ -13,7 +15,7 @@ public:
     smux_sess(asio::io_service &io_service, uint32_t id, uint8_t version,
               std::weak_ptr<smux> sm);
     ~smux_sess();
-    void input(char *buf, std::size_t len, Handler handler);
+    void input(char *buf, std::size_t len, const Handler& handler);
     void async_read_some(char *buf, std::size_t len, Handler handler) override;
     void async_write(char *buf, std::size_t len, Handler handler) override;
 
@@ -37,18 +39,18 @@ class smux final : public std::enable_shared_from_this<smux>,
                    public Destroy {
 public:
     smux(asio::io_service &io_service, OutputHandler handler = nullptr)
-        : AsyncInOutputer(handler), service_(io_service) {}
+        : AsyncInOutputer(std::move(handler)), service_(io_service) {}
 
     void run();
     void async_input(char *buf, std::size_t len, Handler handler) override;
     void set_accept_handler(
         std::function<void(std::shared_ptr<smux_sess>)> handler) {
-        acceptHandler_ = handler;
+        acceptHandler_ = std::move(handler);
     }
     void async_write(char *buf, std::size_t len, Handler handler) override;
     void async_connect(
-        std::function<void(std::shared_ptr<smux_sess>)> connectHandler);
-    void async_write_frame(frame f, Handler handler);
+        const std::function<void(std::shared_ptr<smux_sess>)>& connectHandler);
+    void async_write_frame(frame f, const Handler& handler);
     void async_read_some(char *buf, std::size_t len, Handler handler) override {
     }
     void remove_sess_by_id(uint32_t id) { sessions_.erase(id); }
@@ -59,7 +61,7 @@ private:
     void do_receive_frame();
     void do_stat_checker();
     void handle_frame(frame f);
-    void async_read_full(char *buf, std::size_t len, Handler handler);
+    void async_read_full(char *buf, std::size_t len, const Handler& handler);
     void try_output(char *buf, std::size_t len, Handler handler);
     void try_write_task();
     void call_this_on_destroy() override;

@@ -30,7 +30,6 @@
 .vscode
 .idea
 *.json
-.idea
 .vscode 
 CMakeFiles 
 CMakeCache.txt
@@ -44,3 +43,4 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 build
 bin
+/cmake-build-debug/

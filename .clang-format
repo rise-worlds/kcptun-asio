@@ -1,0 +1,147 @@
+# Generated from CLion C/C++ Code Style settings
+BasedOnStyle: Microsoft
+#BasedOnStyle: LLVM
+Language: Cpp
+Standard: Cpp11
+#缩进宽度
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+UseCRLF: true
+# 去除C++11的列表初始化的大括号{后和}前的空格
+Cpp11BracedListStyle: true
+# 自动检测函数的调用和定义是否被格式为每行一个参数(Experimental)
+ExperimentalAutoDetectBinPacking: false
+# 需要被解读为foreach循环而不是函数调用的宏
+ForEachMacros:  [ foreach, Q_FOREACH, BOOST_FOREACH ]
+# 访问说明符(public、private等)的偏移
+AccessModifierOffset: -4
+# 开括号(开圆括号、开尖括号、开方括号)后的对齐: Align, DontAlign, AlwaysBreak(总是在开括号后换行)
+AlignAfterOpenBracket: Align
+# 水平对齐二元和三元表达式的操作数
+AlignOperands: true
+AllowAllArgumentsOnNextLine: false
+AllowAllConstructorInitializersOnNextLine: false
+# 允许函数声明的所有参数在放在下一行
+AllowAllParametersOfDeclarationOnNextLine: false
+# 允许短的块放在同一行
+AllowShortBlocksOnASingleLine: false
+# 允许短的case标签放在同一行
+AllowShortCaseLabelsOnASingleLine: true
+#AllowShortEnumsOnASingleLine: false
+# 允许短的函数放在同一行
+AllowShortFunctionsOnASingleLine: All
+# 允许短的if语句保持在同一行
+AllowShortIfStatementsOnASingleLine: false
+# 允许短的Lambda函数放在同一行
+AllowShortLambdasOnASingleLine: All
+# 允许短的循环保持在同一行
+AllowShortLoopsOnASingleLine: true
+# 总是在返回类型后换行
+AlwaysBreakAfterReturnType: None
+# 总是在template声明后换行
+AlwaysBreakTemplateDeclarations: Yes
+# 连续赋值时，对齐所有等号
+AlignConsecutiveAssignments: true
+# 连续声明时，对齐所有声明的变量名
+AlignConsecutiveDeclarations: true
+# 多个宏内容对齐
+AlignConsecutiveMacros: false
+# 宏换行符右对齐
+AlignEscapedNewlines: Right
+# 对齐注释
+AlignTrailingComments: true
+# 总是在多行string字面量前换行
+AlwaysBreakBeforeMultilineStrings: true
+BreakBeforeBraces: Allman
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterUnion: true
+  AfterExternBlock: false
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: true
+BreakBeforeBinaryOperators: None
+# 在三元运算符前换行
+BreakBeforeTernaryOperators: true
+# 在构造函数初始化时按逗号断行，并以冒号对齐
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeColon
+# 每行字符的长度
+ColumnLimit: 140
+CompactNamespaces: false
+# 构造函数的初始化列表要么都在同一行，要么都各自一行
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+# 构造函数的初始化列表的缩进宽度
+ConstructorInitializerIndentWidth:  4
+# 延续的行的缩进宽度
+ContinuationIndentWidth: 8
+# 允许排序#include
+SortIncludes: false
+# 缩进case标签
+IndentCaseLabels: true
+# 缩进预处理器指令
+IndentPPDirectives: None
+# 当启用 IndentPPDirectives 时，缩进Pragmas
+#IndentPragmas: false
+#在block从空行开始
+KeepEmptyLinesAtTheStartOfBlocks: true
+# 继承最常用的指针和引用的对齐方式
+DerivePointerAlignment: false
+# 连续的空行保留几行
+MaxEmptyLinesToKeep: 2
+# 命名空间的缩进: None, Inner(缩进嵌套的命名空间中的内容), All
+NamespaceIndentation: Inner
+# 在 @property 后面添加空格
+ObjCSpaceAfterProperty: true
+ObjCSpaceBeforeProtocolList: true
+# 指针和引用的对齐: Left, Right, Middle
+PointerAlignment: Left
+# 允许重新排版注释
+ReflowComments: true
+# 在C风格类型转换后添加空格
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+# 等号两边的空格
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+# 开圆括号之前添加一个空格: Never, ControlStatements, Always
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+# 在空的圆括号中添加空格
+SpaceInEmptyParentheses: false
+# 在尾随的评论前添加的空格数(只适用于//)
+SpacesBeforeTrailingComments: 2
+# 在尖括号的<后和>前添加空格
+SpacesInAngles: false
+# 在C风格类型转换的括号中添加空格
+SpacesInCStyleCastParentheses: false
+# 容器类的空格 例如 OC的字典
+SpacesInContainerLiterals: false
+# 小括号两边添加空格
+SpacesInParentheses: false
+# 中括号两边空格 []，lamda表达式和未指明大小的数组的声明不受影响
+SpacesInSquareBrackets: false
+# 函数返回类型换行时，缩进函数声明或函数定义的函数名
+IndentWrappedFunctionNames: true
+FixNamespaceComments: true
+# 在一个注释中引入换行的penalty
+PenaltyBreakComment: 300
+# 第一次在<<前换行的penalty
+PenaltyBreakFirstLessLess: 120
+# 在一个字符串字面量中引入换行的penalty
+PenaltyBreakString:	1000
+# 对于每个在行字符数限制之外的字符的penalty
+PenaltyExcessCharacter: 1000000
+# 将函数的返回类型放到它自己的行的penalty
+PenaltyReturnTypeOnItsOwnLine: 60

@@ -1,36 +1,38 @@
 #include "server.h"
+
+#include <utility>
 #include "sess.h"
 #include "smux.h"
 
 Server::Server(asio::io_service &io_service, OutputHandler handler)
-    : AsyncInOutputer(handler), service_(io_service) {
+    : AsyncInOutputer(std::move(handler)), service_(io_service) {
 }
 
 void Server::run(AcceptHandler accept_handler, uint32_t convid) {
     auto self = shared_from_this();
 
     in = [this](char *buf, std::size_t len, Handler handler) {
-        sess_->async_input(buf, len, handler);
+        sess_->async_input(buf, len, std::move(handler));
     };
 
     out = [this](char *buf, std::size_t len, Handler handler) {
-        output(buf, len, handler);
+        output(buf, len, std::move(handler));
     };
     sess_ = std::make_shared<Session>(service_, convid, out);
     sess_->run();
 
     out2 = [this](char *buf, std::size_t len, Handler handler) {
-        sess_->async_write(buf, len, handler);
+        sess_->async_write(buf, len, std::move(handler));
     };
     smux_ = std::make_shared<smux>(service_, out2);
-    smux_->set_accept_handler(accept_handler);
+    smux_->set_accept_handler(std::move(accept_handler));
     smux_->call_on_destroy([this, self]{
         destroy();
     });
     smux_->run();
 
     in2 = [this](char *buf, std::size_t len, Handler handler) {
-        smux_->async_input(buf, len, handler);
+        smux_->async_input(buf, len, std::move(handler));
     };
 
     do_sess_receive();

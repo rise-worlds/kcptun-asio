@@ -90,14 +90,14 @@ void Session::async_read_some(char *buffer, std::size_t len, Handler handler) {
         return;
     }
     auto n = ikcp_recv(kcp_, buffer, int(len));
-    // LOG(INFO) << "ikcp_recv return " << n;
+    fmt::print("ikcp_recv return {}\n", n);
     if (handler) {
         handler(std::error_code(0, std::generic_category()),
                 static_cast<std::size_t>(n));
     }
     if (psz > len) {
         n = ikcp_recv(kcp_, stream_buf_, sizeof(stream_buf_));
-        // LOG(INFO) << "ikcp_recv2 return " << n;
+        fmt::print("ikcp_recv2 return {}\n", n);
         streambufsiz_ = n;
     }
     return;
@@ -140,17 +140,17 @@ void Session::updateRead() {
     }
     auto len = rtask_.len;
     auto n = ikcp_recv(kcp_, rtask_.buf, int(len));
-    // LOG(INFO) << "ikcp_recv return " << n;
+    fmt::print("ikcp_recv return {}\n", n);
     auto rtask_handler = rtask_.handler;
     rtask_.reset();
     if (rtask_handler) {
         rtask_handler(std::error_code(0, std::generic_category()),
                       static_cast<std::size_t>(n));
     }
-    // LOG(INFO) << "psz = " << psz << " pick again is " << ikcp_peeksize(kcp_);
+    fmt::print("psz = {} pick again is {}\n", psz, ikcp_peeksize(kcp_));
     if (psz > len) {
         n = ikcp_recv(kcp_, stream_buf_, sizeof(stream_buf_));
-        // LOG(INFO) << "ikcp_recv2 return " << n;
+        fmt::print("ikcp_recv2 return {}\n", n);
         streambufsiz_ = n;
     }
 }
@@ -172,7 +172,7 @@ void Session::updateTimer() {
     auto current = iclock();
     auto next = ikcp_check(kcp_, current);
     next -= current;
-    // LOG(INFO) << "next = " << next;
+    // fmt::print("next = {}\n", next);
     run_timer(std::chrono::high_resolution_clock::now()+std::chrono::milliseconds(next));
 }
 

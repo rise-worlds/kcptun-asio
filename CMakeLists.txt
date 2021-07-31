@@ -6,10 +6,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O2 -DASIO_STANDALONE")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 include_directories("${CMAKE_SOURCE_DIR}/asio/asio/include")
 include_directories("${CMAKE_SOURCE_DIR}/gflags/include")
+include_directories("${CMAKE_SOURCE_DIR}/fmt/include")
 include_directories("${CMAKE_SOURCE_DIR}/kcp")
 
 add_subdirectory("gflags")
 add_subdirectory("kcp")
+
+add_definitions(-DFMT_HEADER_ONLY)
 
 set(SOURCE_FILES
         sess.cpp

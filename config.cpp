@@ -22,18 +22,17 @@ DEFINE_int32(sockbuf, 4194304, "socket buffer size");
 DEFINE_int32(keepalive, 10, "keepalive interval in seconds");
 
 void print_configs() {
-    char buffer[1024];
-    snprintf(buffer, 1024, "listening on: %s\n"
-                 "nodelay parameters: %d %d %d %d\n"
-                 "remote address: %s\n"
-                 "target address: %s\n"
-                 "sndwnd: %d rcvwnd: %d\n"
-                 "mtu: %d\n"
-                 "sockbuf: %d\n"
-                 "keepalive: %d\n"
-                 "conn: %d\n"
-                 "autoexpire: %d\n"
-                 "scavengettl: %d\n",
+    fmt::print("listening on: {}\n"
+                 "nodelay parameters: {} {} {} {}\n"
+                 "remote address: {}\n"
+                 "target address: {}\n"
+                 "sndwnd: {} rcvwnd: {}\n"
+                 "mtu: {}\n"
+                 "sockbuf: {}\n"
+                 "keepalive: {}\n"
+                 "conn: {}\n"
+                 "autoexpire: {}\n"
+                 "scavengettl: {}\n",
          FLAGS_localaddr.c_str(),
          FLAGS_nodelay, FLAGS_interval, FLAGS_resend, FLAGS_nc,
          FLAGS_remoteaddr.c_str(),
@@ -41,7 +40,6 @@ void print_configs() {
          FLAGS_sndwnd, FLAGS_rcvwnd, FLAGS_mtu,
          FLAGS_sockbuf,
          FLAGS_keepalive, FLAGS_conn, FLAGS_autoexpire, FLAGS_scavengettl);
-    // LOG(INFO) << buffer;
 }
 
 static bool check_zero_cstr(const char *cstr)

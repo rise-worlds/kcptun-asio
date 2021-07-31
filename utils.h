@@ -30,6 +30,7 @@
 #include <chrono>
 #include <map>
 #include <array>
+#include "fmt/format.h"
 #include "gflags/gflags.h"
 #include "zlib.h"
 #include "encoding.h"

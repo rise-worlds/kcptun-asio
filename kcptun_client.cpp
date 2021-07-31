@@ -45,8 +45,7 @@ void kcptun_client::do_accept() {
             if (!local) {
                 return;
             }
-            local->async_connect([this, self,
-                                  sock](std::shared_ptr<smux_sess> sess) {
+            local->async_connect([this, self, sock](std::shared_ptr<smux_sess> sess) {
                 if (!sess) {
                     return;
                 }
@@ -65,11 +64,11 @@ kcptun_client_session::kcptun_client_session(
 }
 
 kcptun_client_session::~kcptun_client_session() {
-    // LOG(INFO) << "stream closed!";
+    fmt::print("stream closed!\n");
 }
 
 void kcptun_client_session::run() {
-    // LOG(INFO) << "stream opened!";
+    fmt::print("stream opened!\n");
     do_pipe1();
     do_pipe2();
 }

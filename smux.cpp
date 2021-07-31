@@ -357,7 +357,7 @@ smux_sess::~smux_sess() {
     if (s) {
         s->async_write_frame(frame{version_, cmdFin, 0, id_}, nullptr);
     }
-    // LOG(INFO) << "smux session destroyed!";
+    fmt::print("smux session destroyed!\n");
 }
 
 void smux_sess::call_this_on_destroy() {
